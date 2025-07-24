@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Drawing Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: #ffffff;
+      color: black;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    canvas {
+      display: block;
+      margin: 20px auto;
+      background: #ffffff;
+      border: 4px solid rgb(0, 0, 0);
+    }
+
+    .info {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Created by Abdul Moeed</h1>
+
+  <div class="info">
+    <p><strong>Controls:</strong></p>
+    <p>W = Up | S = Down | A = Left | D = Right</p>
+    <p>SPACE = Toggle drawing | DELETE / Backspace = Clear canvas</p>
+    
+  </div>
+
+  <canvas id="gameCanvas" width="700" height="700"></canvas>
+<div id="Controls">
+  <button onclick="presskey(w)">↑</button>
+  <button onclick="presskey(s)">↓</button>
+  <button onclick="presskey(A)">←</button>
+  <button onclick="presskey(d)">→</button>
+  <button onclick="presskey()">toggle Draw</button>
+  <button onclick="clearCanvas ()">Clear</button>
+</div>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const player = {
+      x: 400,
+      y: 300,
+      size: 10,
+      speed: 3,
+      color: "black",
+      trailColor: "black",
+      isDrawing: true
+    };
+
+    const keys = {};
+
+    // Handle key presses
+    document.addEventListener("keydown", (e) => {
+      keys[e.key.toLowerCase()] = true;
+
+      // Toggle drawing with space
+      if (e.key === " ") {
+        player.isDrawing = !player.isDrawing;
+      }
+
+      // Clear canvas with Delete or Backspace
+      if (e.key === "Delete" || e.key === "Backspace") {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        player.x = 400;
+        player.y = 300;
+      }
+
+      
+    });
+
+    document.addEventListener("keyup", (e) => {
+      keys[e.key.toLowerCase()] = false;
+    });
+
+    function update() {
+      const prevX = player.x;
+      const prevY = player.y;
+
+      if (keys["w"]) player.y -= player.speed;
+      if (keys["s"]) player.y += player.speed;
+      if (keys["a"]) player.x -= player.speed;
+      if (keys["d"]) player.x += player.speed;
+
+      // Keep player inside canvas
+      player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
+      player.y = Math.max(0, Math.min(canvas.height - player.size, player.y));
+
+      // Draw trail
+      if (player.isDrawing) {
+        ctx.strokeStyle = player.trailColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(prevX + player.size / 2, prevY + player.size / 2);
+        ctx.lineTo(player.x + player.size / 2, player.y + player.size / 2);
+        ctx.stroke();
+      }
+    }
+
+    function drawPlayer() {
+      ctx.fillStyle = player.color;
+      ctx.fillRect(player.x, player.y, player.size, player.size);
+    }
+
+    function gameLoop() {
+      update();
+      drawPlayer();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Initial fill
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    gameLoop();
+  </script>
+
+</body>
+</html>
